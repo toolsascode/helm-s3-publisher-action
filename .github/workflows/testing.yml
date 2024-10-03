@@ -16,13 +16,6 @@ jobs:
           helm repo add argo https://argoproj.github.io/argo-helm
           helm repo add nginx-ingress https://kubernetes.github.io/ingress-nginx
 
-      - name: Copy Templates
-        env:
-          GITHUB_ACTION_PATH: ${{ github.action_path }}
-        run: |
-          mkdir -p $GITHUB_ACTION_PATH/templates
-          cp ./templates/*.gotmpl $GITHUB_ACTION_PATH/templates/
-
       - name: NGINX - Testing Repository - Dry-run
         uses: ./
         with:
