@@ -69,16 +69,48 @@ runs:
   using: "composite"
   steps:
 
-    - if: ${{ inputs.setup-helm == 'true' }}
+    - name: Checking if the helm binary has already been installed.
+      id: helm-exists
+      shell: bash
+      run: |
+        if command -v helm &> /dev/null
+        then
+          echo "installed=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "installed=false" >> "$GITHUB_OUTPUT"
+        fi
+
+    - if: ${{ inputs.setup-helm == 'true' && steps.helm-exists.outputs.installed == 'false' }}
       name: Setup Helm
       uses: azure/setup-helm@v4.2.0
 
-    - if: ${{ inputs.setup-helm-s3-plugin == 'true' }}
+    - name: Checking if the helm plugins has already been installed.
+      id: plugins-exists
+      shell: bash
+      run: |
+
+        HELM_S3=$(helm plugin list | grep "s3 ")
+        HELM_S3_PUBLISHER=$(helm plugin list | grep "s3-publisher")
+
+        if [ -n "${HELM_S3}" ]; then
+          echo "helm_s3_installed=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "helm_s3_installed=false" >> "$GITHUB_OUTPUT"
+        fi
+
+        if [ -n "${HELM_S3_PUBLISHER}" ]; then
+          echo "helm_s3_publisher_installed=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "helm_s3_publisher_installed=false" >> "$GITHUB_OUTPUT"
+        fi
+
+    - if: ${{ inputs.setup-helm-s3-plugin == 'true' && steps.plugins-exists.outputs.helm_s3_installed == 'false' }}
       name: Setup Helm S3 Plugin
       shell: bash
       run: helm plugin install https://github.com/hypnoglow/helm-s3.git
 
-    - name: Setup Helm S3 Publisher Plugin
+    - if: ${{ steps.plugins-exists.outputs.helm_s3_publisher_installed == 'false' }}
+      name: Setup Helm S3 Publisher Plugin
       shell: bash
       run: helm plugin install https://github.com/toolsascode/helm-s3-publisher.git
 
