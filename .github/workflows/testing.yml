@@ -1,0 +1,31 @@
+name: Pre-commit
+on:
+  pull_request:
+  push:
+
+jobs:
+  testing:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+      - uses: pre-commit/action@v3.0.1
+      - name: Testing Complete
+        uses: ./
+        with:
+          setup-helm: true
+          setup-helm-s3-plugin: true
+          repo-name: 'nginx'
+          paths: .
+          git-ls-tree: true
+          exclude-paths: '.git, .github'
+          log-level: debug
+          quiet: false
+          dry-run: true
+          report-type: json
+          report-name: 'helm-s3-publisher'
+          report-path: .
+          # s3-acl: ''
+          s3-content-type: 'application/gzip'
+          s3-force: false
+ 
