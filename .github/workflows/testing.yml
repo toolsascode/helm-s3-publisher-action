@@ -1,0 +1,56 @@
+name: Testing
+on:
+  pull_request:
+  push:
+
+jobs:
+  testing:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+      - uses: pre-commit/action@v3.0.1
+
+      - name: Helm Charts Repositories
+        run: |
+          helm repo add argo https://argoproj.github.io/argo-helm
+          helm repo add nginx-ingress https://kubernetes.github.io/ingress-nginx
+
+      - name: NGINX - Testing Repository - Dry-run
+        uses: ./
+        with:
+          setup-helm: true
+          setup-helm-s3-plugin: true
+          repo-name: 'nginx'
+          paths: .
+          git-ls-tree: true
+          exclude-paths: '.git, .github'
+          log-level: debug
+          # quiet: false
+          dry-run: true
+          report-type: ''
+          # report-name: 'helm-s3-publisher'
+          # report-path: .
+          # s3-acl: ''
+          # s3-content-type: 'application/gzip'
+          # s3-force: false
+
+      - name: ARGO - Testing Repository - Dry-run
+        uses: ./
+        with:
+          setup-helm: true
+          setup-helm-s3-plugin: true
+          repo-name: 'argo'
+          paths: .
+          git-ls-tree: true
+          exclude-paths: '.git, .github'
+          log-level: debug
+          # quiet: false
+          dry-run: true
+          report-type: ''
+          # report-name: 'helm-s3-publisher'
+          # report-path: .
+          # s3-acl: ''
+          # s3-content-type: 'application/gzip'
+          # s3-force: false
+ 

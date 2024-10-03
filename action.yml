@@ -1,1 +1,179 @@
+name: 'Go Modeler for File Templates'
+author: 'Carlos Freitas <carlosrfjunior@gmail.com>'
+description: 'Create and compile your file templates for deploy, Github Step Summary and others with ease.'
 
+branding:
+  icon: 'terminal'
+  color: 'green'
+
+inputs:
+  setup-helm:
+    description: Enables helm installation
+    required: false
+    default: 'false'
+  setup-helm-s3-plugin:
+    description: Enables installation of helm s3 plugin
+    required: false
+    default: 'false'
+  repo-name:
+    description: 'Repository for searching and publishing the new version of the chart.'
+    required: true
+  paths:
+    description: >
+      List of charts directories separated by commas.
+      If the Git LS Tree feature is enabled, the CLI will attempt to identify all changed chart directories indicated in the PATHS parameter.
+      Example: "dir-chart-1,dir-chart-2"
+    required: true
+  git-ls-tree:
+    description: Enable the Git LS Tree feature and automatically disables the CHART PATHS parameter if it was specified.
+    required: false
+    default: 'true'
+  exclude-paths:
+    description: 'List of directories to ignore separated by commas.'
+    required: false
+    default: '.git, .github'
+  log-level:
+    description: 'Log level [debug, info, warn, error, fatal, panic].'
+    required: false
+    default: 'info'
+  quiet:
+    description: Make some output more quiet.
+    required: false
+  dry-run:
+    description: Executes the entire process without performing any publishing operations.
+    required: false
+  report-type:
+    description: Generate report on helm charts published or not. [json, text and txt].
+    required: false
+    default: 'json'
+  report-name:
+    description: Generate report on helm charts published or not. [json, text and txt].
+    required: false
+    default: 'helm-s3-publisher'
+  report-path:
+    description: Generate report on helm charts published or not. [json, text and txt].
+    required: false
+    default: '.'
+  s3-acl:
+    description: S3 Object ACL to use for charts and indexes. Can be sourced from S3_ACL environment variable.
+    required: false
+  s3-content-type:
+    description: Set the content-type for the chart file. Can be sourced from S3_CHART_CONTENT_TYPE environment variable.
+    required: false
+    default: 'application/gzip'
+  s3-force:
+    description: Replace the chart if it already exists. This can cause the repository to lose existing chart; use it with care.
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Checking if the helm binary has already been installed.
+      id: helm-exists
+      shell: bash
+      run: |
+        if command -v helm &> /dev/null
+        then
+          echo "installed=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "installed=false" >> "$GITHUB_OUTPUT"
+        fi
+
+    - if: ${{ inputs.setup-helm == 'true' && steps.helm-exists.outputs.installed == 'false' }}
+      name: Setup Helm
+      uses: azure/setup-helm@v4.2.0
+
+    - name: Checking if the helm plugins has already been installed.
+      id: plugins-exists
+      shell: bash
+      run: |
+
+        HELM_S3=$(helm plugin list | grep "s3 " || true)
+        HELM_S3_PUBLISHER=$(helm plugin list | grep "s3-publisher" || true )
+
+        if [ -n "${HELM_S3}" ]; then
+          echo "helm_s3_installed=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "helm_s3_installed=false" >> "$GITHUB_OUTPUT"
+        fi
+
+        if [ -n "${HELM_S3_PUBLISHER}" ]; then
+          echo "helm_s3_publisher_installed=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "helm_s3_publisher_installed=false" >> "$GITHUB_OUTPUT"
+        fi
+
+    - if: ${{ inputs.setup-helm-s3-plugin == 'true' && steps.plugins-exists.outputs.helm_s3_installed == 'false' }}
+      name: Setup Helm S3 Plugin
+      shell: bash
+      run: helm plugin install https://github.com/hypnoglow/helm-s3.git
+
+    - if: ${{ steps.plugins-exists.outputs.helm_s3_publisher_installed == 'false' }}
+      name: Setup Helm S3 Publisher Plugin
+      shell: bash
+      run: helm plugin install https://github.com/toolsascode/helm-s3-publisher.git
+
+    - name: Setup Helm S3 Publisher Plugin
+      shell: bash
+      run: |
+        if [ -n "${{ inputs.repo-name }}" ]; then
+          set -- "$@" "${{ inputs.repo-name }}"
+        fi
+        if [ -n "${{ inputs.paths }}" ]; then
+          set -- "$@" "${{ inputs.paths }}"
+        fi
+        if [ -n "${{ inputs.git-ls-tree }}" ]; then
+          set -- "$@" --git-ls-tree
+        fi
+        if [ -n "${{ inputs.exclude-paths }}" ]; then
+          set -- "$@" --exclude-paths "${{ inputs.exclude-paths }}"
+        fi
+        if [ -n "${{ inputs.log-level }}" ]; then
+          set -- "$@" --log-level "${{ inputs.log-level }}"
+        fi
+        if [ -n "${{ inputs.quiet }}" ]; then
+          set -- "$@" --quiet
+        fi
+        if [ -n "${{ inputs.dry-run }}" ]; then
+          set -- "$@" --dry-run
+        fi
+        if [ -n "${{ inputs.report-type }}" ]; then
+          set -- "$@" --report "${{ inputs.report-type }}"
+        fi
+        if [ -n "${{ inputs.report-name }}" ]; then
+          set -- "$@" --report-name "${{ inputs.report-name }}"
+        fi
+        if [ -n "${{ inputs.report-path }}" ]; then
+          set -- "$@" --report-path "${{ inputs.report-path }}"
+        fi
+        if [ -n "${{ inputs.s3-acl }}" ]; then
+          set -- "$@" --s3-acl "${{ inputs.s3-acl }}"
+        fi
+        if [ -n "${{ inputs.s3-content-type }}" ]; then
+          set -- "$@" --s3-content-type "${{ inputs.s3-content-type }}"
+        fi
+        if [ -n "${{ inputs.s3-force }}" ]; then
+          set -- "$@" --s3-force "${{ inputs.s3-force }}"
+        fi
+
+        helm s3-publisher "$@"
+
+    - if: ${{ inputs.report-type != '' }}
+      name: Upload Artifact
+      id: upload
+      uses: actions/upload-artifact@v4
+      with:
+        name: report-file
+        path: "${{ inputs.report-path }}/${{ inputs.report-name }}.${{ inputs.report-type }}"
+
+    - if: ${{ inputs.report-type != '' }}
+      name: Chart Summary Report
+      uses: toolsascode/gomodeler-action@v1
+      with:
+        log-level: debug
+        environments: |
+          filename=${{ inputs.report-path }}/${{ inputs.report-name }}.${{ inputs.report-type }}
+          filereport=${{ steps.upload.outputs.artifact-url }}
+        template-file: ${{ github.action_path }}/templates/helm-charts.md.gotmpl
+        github-step-summary: true

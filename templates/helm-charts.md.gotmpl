@@ -1,0 +1,47 @@
+{{- /*
+        "chart_name": "common",
+        "chart_version": "1.0.0",
+        "chart_path": "/path/to/helm-charts/common",
+        "chart_url": "s3://my-repo-name/common-1.0.0.tgz",
+        "repo_name": "my-repo-name",
+        "git_ls_tree": true,
+        "published": true,
+        "force": false
+*/ -}}
+
+## Chart Summary Report
+
+Below you will find the list of helm charts identified as modified or added and that have been processed, published or not.
+
+<table>
+    <tr>
+        <th colspan="3" style="text-align: center;">Helm Charts</th>
+        <th rowspan="2">Repo Name</th>
+        <th rowspan="2" title="Used Git LS Tree feature to list changed files.">Git LS Tree?</th>
+        <th rowspan="2" title="Indicates whether the helm chart version has been published or not.">Published?</th>
+        <th rowspan="2" title="Enabling this feature will cause the CLI to perform an override if the same version has already been published previously.">Foced?</th>
+    </tr>
+    <tr>
+        <th>Name</th>
+        <th>Version</th>
+        <th>Link</th>
+    </tr>
+    {{ range fromJson (include .filename) -}}
+    <tr>
+        <td><b>{{- .chart_name }}</b></td>
+        <td><code>{{- .chart_version }}</code></td>
+        <td>{{- .chart_url }}</td>
+        <td>{{- .repo_name }}</td>
+        <td style="text-align: center;" title="{{- .git_ls_tree | ternary "Yes" "No" }}">{{- .git_ls_tree | ternary "⭐" "❌" }}</td>
+        <td style="text-align: center;" title="{{- .published | ternary "Yes" "No" }}">{{- .published | ternary "✅" "❌" }}</td>
+        <td style="text-align: center;" title="{{- .force | ternary "Yes" "No" }}">{{- .force | ternary "🔥" "❌" }}</td>
+    </tr>
+    {{ end -}}
+</table>
+
+<p>
+⬇️ <strong><a href="{{ .filereport }}">Report File</a></strong>
+</p>
+{{-/*
+<i>(24.47 KB - includes 1 build record)</i>
+*/-}}
