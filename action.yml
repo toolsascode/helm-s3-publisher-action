@@ -89,8 +89,8 @@ runs:
       shell: bash
       run: |
 
-        HELM_S3=$(helm plugin list | grep "s3 ")
-        HELM_S3_PUBLISHER=$(helm plugin list | grep "s3-publisher")
+        HELM_S3=$(helm plugin list | grep "s3 " || true)
+        HELM_S3_PUBLISHER=$(helm plugin list | grep "s3-publisher" || true )
 
         if [ -n "${HELM_S3}" ]; then
           echo "helm_s3_installed=true" >> "$GITHUB_OUTPUT"
