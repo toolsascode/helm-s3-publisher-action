@@ -1,6 +1,6 @@
-name: 'Go Modeler for File Templates'
+name: 'Helm S3 Publisher'
 author: 'Carlos Freitas <carlosrfjunior@gmail.com>'
-description: 'Create and compile your file templates for deploy, Github Step Summary and others with ease.'
+description: 'Helm S3 Publisher is a small project with the purpose of helping in the process of publishing new helm charts using the helm s3 plugin already known by the community.'
 
 branding:
   icon: 'terminal'
@@ -64,6 +64,10 @@ inputs:
   s3-force:
     description: Replace the chart if it already exists. This can cause the repository to lose existing chart; use it with care.
     required: false
+  github-step-summary:
+    description: 'The functionality incorporates the publication report into the GitHub Actions Summary.'
+    required: false
+    default: 'true'
 
 runs:
   using: "composite"
@@ -167,7 +171,7 @@ runs:
         name: report-file
         path: "${{ inputs.report-path }}/${{ inputs.report-name }}.${{ inputs.report-type }}"
 
-    - if: ${{ inputs.report-type != '' }}
+    - if: ${{ inputs.report-type != '' && inputs.github-step-summary == 'true' }}
       name: Chart Summary Report
       uses: toolsascode/gomodeler-action@v1
       with:
