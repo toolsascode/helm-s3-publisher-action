@@ -143,5 +143,5 @@ runs:
         environments: |
           filename=${{ inputs.report-path }}/${{ inputs.report-name }}.${{ inputs.report-type }}
           filereport=${{ steps.upload.outputs.artifact-url }}
-        template-file: $GITHUB_ACTION_PATH/templates/helm-charts.md.gotmpl
+        template-file: ${{ github.action_path }}/templates/helm-charts.md.gotmpl
         github-step-summary: true

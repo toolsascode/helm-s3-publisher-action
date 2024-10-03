@@ -35,11 +35,11 @@ jobs:
           log-level: debug
           # quiet: false
           dry-run: true
-          report-type: json
-          report-name: 'helm-s3-publisher'
-          report-path: .
+          report-type: ''
+          # report-name: 'helm-s3-publisher'
+          # report-path: .
           # s3-acl: ''
-          s3-content-type: 'application/gzip'
+          # s3-content-type: 'application/gzip'
           # s3-force: false
 
       - name: ARGO - Testing Repository - Dry-run
@@ -54,10 +54,10 @@ jobs:
           log-level: debug
           # quiet: false
           dry-run: true
-          report-type: json
-          report-name: 'helm-s3-publisher'
-          report-path: .
+          report-type: ''
+          # report-name: 'helm-s3-publisher'
+          # report-path: .
           # s3-acl: ''
-          s3-content-type: 'application/gzip'
+          # s3-content-type: 'application/gzip'
           # s3-force: false
  
