@@ -64,12 +64,11 @@ inputs:
   s3-force:
     description: Replace the chart if it already exists. This can cause the repository to lose existing chart; use it with care.
     required: false
-    default: 'false'
 
 runs:
   using: "composite"
   steps:
-  
+
     - if: ${{ inputs.setup-helm == 'true' }}
       name: Setup Helm
       uses: azure/setup-helm@v4.2.0
