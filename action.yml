@@ -1,6 +1,6 @@
 name: 'Helm S3 Publisher'
 author: 'Carlos Freitas <carlosrfjunior@gmail.com>'
-description: 'Helm S3 Publisher is a small project with the purpose of helping in the process of publishing new helm charts using the helm s3 plugin already known by the community.'
+description: 'Helm S3 Publisher is a small CLI to help with the chart publishing process.'
 
 branding:
   icon: 'terminal'
