@@ -3,8 +3,8 @@ author: 'Carlos Freitas <carlosrfjunior@gmail.com>'
 description: 'Helm S3 Publisher is a small CLI to help with the chart publishing process.'
 
 branding:
-  icon: 'terminal'
-  color: 'green'
+  icon: 'cloud'
+  color: 'blue'
 
 inputs:
   setup-helm:
@@ -54,6 +54,10 @@ inputs:
     description: Directory where the report will be saved by the CLI.
     required: false
     default: '.'
+  report-template-file:
+    description: "Indicate the template file you want to use. See more at https://github.com/marketplace/actions/go-modeler-for-file-templates"
+    required: false
+    default: ${{ github.action_path }}/templates/helm-charts.md.gotmpl
   s3-acl:
     description: S3 Object ACL to use for charts and indexes. Can be sourced from S3_ACL environment variable.
     required: false
@@ -179,5 +183,5 @@ runs:
         environments: |
           filename=${{ inputs.report-path }}/${{ inputs.report-name }}.${{ inputs.report-type }}
           filereport=${{ steps.upload.outputs.artifact-url }}
-        template-file: ${{ github.action_path }}/templates/helm-charts.md.gotmpl
-        github-step-summary: true
+        template-file: ${{ inputs.report-template-file }}
+        github-step-summary: ${{ inputs.github-step-summary }}
