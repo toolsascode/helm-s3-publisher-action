@@ -191,5 +191,5 @@ runs:
         environments: |
           filename=${{ inputs.report-path }}/${{ inputs.report-name }}.${{ inputs.report-type }}
           filereport=${{ steps.upload.outputs.artifact-url }}
-        template-file: ${{ inputs.report-template-file }}
-        github-step-summary: $TEMPLATE_FILE
+        template-file: $TEMPLATE_FILE
+        github-step-summary: ${{ inputs.github-step-summary }}
