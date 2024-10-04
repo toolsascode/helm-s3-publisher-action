@@ -18,7 +18,7 @@ Please refer to the [release page](https://github.com/toolsascode/helm-s3-publis
 ## Usage
 
 ```yaml
-- uses: toolsascode/helm-s3-publisher-action@main
+- uses: toolsascode/helm-s3-publisher-action@v1
   with:
     # (Optional) Enables helm installation
     # Default: 'false'
@@ -56,8 +56,8 @@ Please refer to the [release page](https://github.com/toolsascode/helm-s3-publis
     report-path: '.'
     # (Optional) Indicate the template file you want to use. 
     # See more at https://github.com/marketplace/actions/go-modeler-for-file-templates
-    # Default: ${{ github.action_path }}/templates/helm-charts.md.gotmpl
-    report-template-file: ${{ github.action_path }}/templates/helm-charts.md.gotmpl
+    # Default: ''
+    report-template-file: ''
     # S3 Object ACL to use for charts and indexes. Can be sourced from S3_ACL environment variable.
     s3-acl: ''
     # Set the content-type for the chart file. Can be sourced from S3_CHART_CONTENT_TYPE environment variable.

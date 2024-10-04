@@ -57,7 +57,6 @@ inputs:
   report-template-file:
     description: "Indicate the template file you want to use. See more at https://github.com/marketplace/actions/go-modeler-for-file-templates"
     required: false
-    default: ${{ github.action_path }}/templates/helm-charts.md.gotmpl
   s3-acl:
     description: S3 Object ACL to use for charts and indexes. Can be sourced from S3_ACL environment variable.
     required: false
@@ -122,6 +121,15 @@ runs:
       shell: bash
       run: helm plugin install https://github.com/toolsascode/helm-s3-publisher.git
 
+    - name: Checking Templates
+      shell: bash
+      run: |
+        if [ -n "${{ inputs.report-template-file }}" ]; then
+          echo "TEMPLATE_FILE=${{ inputs.report-template-file }}" >> "$GITHUB_ENV"
+        else
+          echo "TEMPLATE_FILE=${{ github.action_path }}/templates/helm-charts.md.gotmpl" >> "$GITHUB_ENV"
+        fi
+
     - name: Setup Helm S3 Publisher Plugin
       shell: bash
       run: |
@@ -184,4 +192,4 @@ runs:
           filename=${{ inputs.report-path }}/${{ inputs.report-name }}.${{ inputs.report-type }}
           filereport=${{ steps.upload.outputs.artifact-url }}
         template-file: ${{ inputs.report-template-file }}
-        github-step-summary: ${{ inputs.github-step-summary }}
+        github-step-summary: $TEMPLATE_FILE
