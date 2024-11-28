@@ -1,4 +1,4 @@
-<p align="center"><a href="https://github.com/toolsascode/protomagic"><image src="https://raw.githubusercontent.com/toolsascode/protomagic/main/assets/protomagic.png" style="width: 100px;"></a></p>
+<p align="center"><a href="https://github.com/toolsascode/helm-s3-publisher"><image src="https://raw.githubusercontent.com/toolsascode/protomagic/main/assets/protomagic.png" style="width: 100px;"></a></p>
 
 # Helm S3 Publisher for GitHub Action
 
